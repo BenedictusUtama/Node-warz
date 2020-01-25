@@ -1,0 +1,193 @@
+##Benedictus Utama 2019
+##node wars
+import random, string
+
+letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+def make_board(size):
+	'''
+	makes a square matrix for the playing board
+	'''
+
+	board = []
+	for ct in range(size):
+		board.append([])
+		for ctt in range(size):
+			board[ct].append([])
+
+	return board
+			 
+
+class Node(object):
+	'''
+	makes nodes with attributes, coords are read (row, col), 
+	'''
+
+	#default values
+	coord = (0,0)
+	hp = 10
+	atk = 5
+	name = "unnamed"
+	stat = "free"
+
+	#constructor
+	def __init__(self, size):
+		self.coord = (random.randint(0,(size-1)), random.randint(0,(size-1)))
+		self.hp = random.randint(8, 12)
+		self.atk = random.randint(4,6)
+		self.name = (random.choice(letters)) + \
+		(random.choice(letters)) + (random.choice(letters)) 
+		self.stat = "free"
+
+
+def make_node(size):
+	'''
+	when calling this function, make sure to ALWAYS add the returned node to the 
+	nodedict/roster, then call check_name
+	'''
+
+	node = Node(size)
+	print(node.coord)
+	print(node.hp, "HP")
+	print(node.atk, "ATK")
+	print(node.name, "NAME")
+	return node
+
+
+def update_boards(nodedict, board):
+	'''
+	updates board with given node roster
+	'''
+
+
+	for node in nodedict:
+		locale = nodedict[node].coord
+		board[locale[0]][locale[1]].append(node)
+
+
+def display_board(size, board):
+	disp = []
+	for ct in range(size):
+		disp.append([])
+		
+		for ctt in range(size):
+			disp[ct].append([ctt])
+			pres = len(board[ct][ctt])
+			disp[ct][ctt] = pres
+
+	print("BOARD")
+
+	for row in range(leng):
+ 		print(disp[row])
+
+
+
+def node_fight(nodedict):
+	for node in nodedict:
+		searchdic = deepcopy_dict(nodedict)
+		searchdic.pop(node)
+
+		for other in searchdic:
+			if (nodedict[node].coord == searchdic[other].coord):
+				nodedict[node].hp -= searchdic[other].atk
+				nodedict[node].stat = "fite"
+				searchdic[other].stat = "fite"
+
+		print(nodedict[node].hp, nodedict[node].name, "HEALTH")
+
+
+def deepcopy_dict(nodedict):
+	ret = {}
+	for node in nodedict:
+		ret[node] = node
+
+	return ret
+
+def check_name(nodedict, node):
+	'''
+	checks the node roster if a node shares the name of the new node
+	if node shares a name, a new name is given and checked again
+	'''
+	olddic = deepcopy_dict(nodedict)
+	olddic.pop(node)
+	for old in olddic:
+		if (olddic[old].name == nodedict[node].name):
+			nodedict[node].name = (random.choice(string.letters)) + \
+			(random.choice(string.letters)) + (random.choice(string.letters)) 
+
+			check_name(nodedict, node)
+
+def node_batch(size, num, nodedict):
+	for ct in range(num):
+		nod = make_node(size)
+		nodedict[nod] = nod
+		check_name(nodedict, nod)
+		print("finalized attributes")
+
+def death_check(nodedict, gravedict):
+	for node in nodedict:
+		if (nodedict[node].hp < 0):
+			gravedict[node] = nodedict[node].pop
+
+
+
+
+"----------------debugging-----------------"
+###
+
+"-----------------testing------------------"
+
+#leng = input("board size")
+leng = 4
+noderost = {}
+
+bord = make_board(leng)
+print(bord)
+
+nod = make_node(leng)
+noderost[nod] = nod
+check_name(noderost, nod)
+print("single node")
+
+node_batch(leng, 3, noderost)
+
+
+update_boards(noderost, bord)
+
+display_board(leng, bord)
+
+# nod.hp -= nod.atk
+# print(nod.hp
+print("")
+node_fight(noderost)
+
+turn = 1390
+
+while turn >= 1:
+	print("")
+	print("what would you like to do")
+	print("0 to exit")
+	print("1 to continue")
+	print("2 to spawn more nodes")
+
+	turn = int(input())
+
+	if (turn == ""):
+		turn = 1390
+
+	if (turn == 1):
+		node_fight(noderost)
+		for node in noderost:
+			if (node.stat == "free"):
+				#call move function
+				pass
+
+		display_board(leng, bord)
+
+	if (turn == 2):
+		amt = int(input("how many nodes?"))
+		print("")
+		
+		node_batch(leng, amt, noderost)
+		update_boards(noderost, bord)
+		display_board(leng, bord)
